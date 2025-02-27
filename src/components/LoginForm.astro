@@ -1,0 +1,82 @@
+---
+import axiosInstance from '../utils/axiosInstance';
+
+// Variables para el formulario
+let email = '';
+let password = '';
+let errorMessage = '';
+let loading = false;
+---
+
+<form class="max-w-md mx-auto bg-white p-8 shadow-md rounded">
+  <h2 class="text-2xl font-bold mb-6 text-center">Iniciar sesión</h2>
+
+  {errorMessage && <div class="bg-red-100 text-red-600 p-4 mb-4 rounded">{errorMessage}</div>}
+
+  <div class="mb-4">
+    <label for="email" class="block text-gray-700">Correo Electrónico:</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      class="w-full p-2 border border-gray-300 rounded mt-2 focus:ring focus:border-blue-300"
+      required
+    />
+  </div>
+
+  <div class="mb-4">
+    <label for="password" class="block text-gray-700">Contraseña:</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      class="w-full p-2 border border-gray-300 rounded mt-2 focus:ring focus:border-blue-300"
+      required
+    />
+  </div>
+
+  <button
+    type="submit"
+    class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded font-bold"
+    disabled={loading}
+  >
+    {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+  </button>
+
+  <div id="error-message" class="text-red-600"></div>
+</form>
+
+<script is:inline>
+  const form = document.querySelector('form');
+
+  async function handleLogin(event) {
+    event.preventDefault();
+
+    const emailInput = document.querySelector('#email').value;
+    const passwordInput = document.querySelector('#password').value;
+    const errorMessageElement = document.querySelector('#error-message');
+
+    loading = true;
+    errorMessage = '';
+
+    try {
+      const response = await axiosInstance.post('/auth/login', {
+        email: emailInput,
+        password: passwordInput,
+      });
+
+      // Si la autenticación fue exitosa, guarda el token en localStorage
+      localStorage.setItem('token', response.data.token);
+
+      // Redirigir a la página principal o dashboard
+      window.location.href = '/';
+    } catch (error) {
+      // Muestra el mensaje de error en caso de credenciales incorrectas
+      errorMessageElement.textContent = 'Credenciales incorrectas, por favor intenta nuevamente.';
+    } finally {
+      loading = false;
+    }
+  }
+
+  form.addEventListener('submit', handleLogin);
+</script>

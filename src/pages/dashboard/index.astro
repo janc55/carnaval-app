@@ -1,0 +1,158 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Dashboard - Carnaval de Oruro 2025">
+  <main class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+      <div class="bg-white rounded-3xl shadow-xl p-6 min-h-[80vh]">
+        <header class="mb-8">
+          <h1 class="text-2xl font-bold text-gray-800 text-center">
+            Control de Conjuntos
+          </h1>
+          <p class="text-gray-600 text-center text-sm mt-2">
+            Carnaval de Oruro 2025
+          </p>
+          <p id="ubicacionSeleccionada" class="text-purple-600 font-semibold text-center mt-2"></p>
+        </header>
+
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label for="grupo" class="block text-sm font-medium text-gray-700">
+              Seleccione un grupo
+            </label>
+            <div class="relative">
+              <select
+                id="grupo"
+                class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 appearance-none transition-colors"
+              >
+                <option value="">Seleccionar grupo...</option>
+                <option value="1">Grupo 1</option>
+                <option value="2">Grupo 2</option>
+                <option value="3">Grupo 3</option>
+                <option value="4">Grupo 4</option>
+                <option value="5">Grupo 5</option>
+                <option value="6">Grupo 6</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="conjunto" class="block text-sm font-medium text-gray-700">
+              Seleccione un conjunto
+            </label>
+            <div class="relative">
+              <select
+                id="conjunto"
+                class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 appearance-none transition-colors"
+                disabled
+              >
+                <option value="">Primero seleccione un grupo...</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <button
+            id="btnAgregarDatos"
+            disabled
+            class="w-full py-3 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-8"
+          >
+            Agregar Datos
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import axios from 'axios';
+
+  // Verificar si el usuario está autenticado
+  const authToken = localStorage.getItem('authToken');
+  if (!authToken) {
+    window.location.href = '/login'; // Redirigir al login si no hay token
+  } else {
+    // Verificar si la ubicación está seleccionada
+    const ubicacion = localStorage.getItem('ubicacionConteo');
+    if (!ubicacion) {
+      window.location.href = '/dashboard/seleccion-ubicacion';
+    } else {
+      const ubicacionElement = document.getElementById('ubicacionSeleccionada');
+      if (ubicacionElement) {
+        ubicacionElement.textContent = `Ubicación: ${ubicacion}`;
+      } else {
+        console.error("El elemento 'ubicacionSeleccionada' no fue encontrado en el DOM.");
+      }
+    }
+  }
+
+  const grupoSelect = document.getElementById('grupo') as HTMLSelectElement;
+  const conjuntoSelect = document.getElementById('conjunto') as HTMLSelectElement;
+  const btnAgregarDatos = document.getElementById('btnAgregarDatos') as HTMLButtonElement;
+
+  // Cargar conjuntos cuando se selecciona un grupo
+  grupoSelect?.addEventListener('change', async (e) => {
+    const grupoId = (e.target as HTMLSelectElement).value;
+
+    if (conjuntoSelect) {
+      if (!grupoId) {
+        conjuntoSelect.disabled = true;
+        conjuntoSelect.innerHTML = '<option value="">Primero seleccione un grupo...</option>';
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/v1/fraternidades');
+        const conjuntos = response.data.filter((c: any) => c.grupo.toString() === grupoId);
+
+        conjuntoSelect.innerHTML = `
+          <option value="">Seleccione un conjunto...</option>
+          ${conjuntos.map((c: any) => `
+            <option value="${c.id}">${c.nombre}</option>
+          `).join('')}
+        `;
+
+        conjuntoSelect.disabled = false;
+      } catch (error) {
+        console.error('Error al cargar los conjuntos:', error);
+      }
+    }
+  });
+
+  // Habilitar botón cuando se selecciona un conjunto
+  conjuntoSelect?.addEventListener('change', (e) => {
+    const conjuntoId = (e.target as HTMLSelectElement).value;
+    if (btnAgregarDatos) {
+      btnAgregarDatos.disabled = !conjuntoId;
+    }
+  });
+
+  // Manejar clic en botón Agregar Datos
+  btnAgregarDatos?.addEventListener('click', () => {
+    const conjuntoId = (conjuntoSelect as HTMLSelectElement).value;
+    if (conjuntoId) {
+      window.location.href = `/dashboard/conjunto/${conjuntoId}`;
+    }
+  });
+</script>
+
+<style>
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+</style>
+  
+

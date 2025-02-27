@@ -1,0 +1,245 @@
+---
+import axios from 'axios'; // Importamos axios
+import Layout from '../../../../layouts/Layout.astro';
+
+interface Banda {
+  id: string;
+  nombre: string;
+}
+
+let bandas: Banda[] = [];
+
+// Hacer la solicitud a la API usando Axios en el lado del servidor
+try {
+  const response = await axios.get('http://127.0.0.1:8000/api/v1/bandas');
+  bandas = response.data; // Guardamos los datos obtenidos en la variable 'bandas'
+} catch (error) {
+  console.error('Error al obtener las bandas:', error);
+}
+---
+
+<Layout title="Datos de la Banda - Carnaval de Oruro 2025">
+    <main class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500">
+      <div class="container mx-auto px-4 py-8 max-w-md">
+        <div class="bg-white rounded-3xl shadow-xl p-6 min-h-[80vh]">
+          <!-- Header -->
+          <header class="mb-8">
+            <button
+              class="mb-4 text-gray-600 hover:text-gray-800 transition-colors"
+              onclick="history.back()"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-gray-800">
+              Datos de la Banda
+            </h1>
+          </header>
+  
+          <!-- Formulario -->
+          <form id="bandaForm" class="space-y-6" >
+            <input type="hidden" id="conjuntoId" />
+            <div class="space-y-2">
+              <label for="bandas" class="block text-sm font-medium text-gray-700">
+                Seleccionar Banda
+              </label>
+              <div class="flex gap-2">
+                <div class="relative flex-grow">
+                  <select
+                    id="bandas"
+                    class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                    
+                  >
+                    <option value="">Selecciona una banda...</option>
+                    {bandas.map((banda) => (
+                        <option value={banda.id}>{banda.nombre}</option>
+                      ))}
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  id="btnNuevaBanda"
+                  class="px-4 py-3 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+  
+            <div class="space-y-2">
+              <label for="integrantesBanda" class="block text-sm font-medium text-gray-700">
+                Número de Integrantes
+              </label>
+              <input
+                type="number"
+                id="integrantesBanda"
+                name="integrantesBanda"
+                class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                required
+              />
+            </div>
+  
+            <!-- Botón Guardar -->
+            <button
+              type="submit"
+              class="w-full py-3 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 mt-8"
+            >
+              Guardar Datos
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+  
+    <!-- Modal para nueva banda -->
+    <div id="modalNuevaBanda" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Agregar Nueva Banda</h3>
+          <div class="mt-2 px-7 py-3">
+            <input
+              type="text"
+              id="nuevaBandaNombre"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Nombre de la banda"
+            />
+          </div>
+          <div class="items-center px-4 py-3">
+            <button
+              id="btnGuardarNuevaBanda"
+              class="px-4 py-2 bg-purple-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+        import axios from 'axios';
+
+        const btnNuevaBanda = document.getElementById('btnNuevaBanda') as HTMLButtonElement | null;
+        const modalNuevaBanda = document.getElementById('modalNuevaBanda') as HTMLDivElement | null;
+        const btnGuardarNuevaBanda = document.getElementById('btnGuardarNuevaBanda') as HTMLButtonElement | null;
+        const nuevaBandaNombre = document.getElementById('nuevaBandaNombre') as HTMLInputElement | null;
+
+        btnNuevaBanda?.addEventListener('click', () => {
+            modalNuevaBanda?.classList.remove('hidden');
+        });
+
+        modalNuevaBanda?.addEventListener('click', (e) => {
+            if (e.target === modalNuevaBanda) {
+                modalNuevaBanda?.classList.add('hidden');
+            }
+        });
+
+        btnGuardarNuevaBanda?.addEventListener('click', async () => {
+            const nombreBanda = nuevaBandaNombre?.value.trim();
+            if (nombreBanda) {
+                try {
+                    const token = localStorage.getItem('authToken');
+                    if (!token) {
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    axios.defaults.headers.common['Accept'] = 'application/json';
+
+                    const response = await axios.post('http://127.0.0.1:8000/api/v1/bandas', { nombre: nombreBanda });
+                    const nuevaBanda = response.data;
+                    const bandaSelect = document.getElementById('bandaSelect') as HTMLSelectElement | null;
+                    if (bandaSelect) {
+                        const option = document.createElement('option');
+                        option.value = nuevaBanda.id;
+                        option.textContent = nuevaBanda.nombre;
+                        bandaSelect.appendChild(option);
+                        bandaSelect.value = nuevaBanda.id;
+                    }
+                    modalNuevaBanda?.classList.add('hidden');
+                    if (nuevaBandaNombre) {
+                        nuevaBandaNombre.value = '';
+                    }
+                } catch (error) {
+                    handleApiError(error);
+                }
+            }
+        });
+
+        function handleApiError(error: any) {
+            if (error.response && error.response.status === 422) {
+                alert('Ya existe una banda con ese nombre. Por favor, elija otro nombre.');
+            } else {
+                console.error('Error al guardar la nueva banda:', error);
+                alert('Error al guardar la nueva banda');
+            }
+        }
+
+        document.getElementById('bandaForm')!.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const bandaSelect = document.getElementById('bandas') as HTMLSelectElement;
+            const integrantesInput = document.getElementById('integrantesBanda') as HTMLInputElement;
+
+            if (!bandaSelect || !integrantesInput) {
+                console.error('Elementos del formulario no encontrados.');
+                alert('Error: Elementos del formulario no encontrados.');
+                return;
+            }
+
+            const bandaId = bandaSelect.value;
+            const integrantesBanda = integrantesInput.value;
+
+            try {
+                // Obtén el token de autenticación del almacenamiento local o de donde lo tengas guardado.
+                const token = localStorage.getItem('authToken'); // Reemplaza 'authToken' con tu clave de almacenamiento
+
+                if (!token) {
+                    alert('No se encontró el token de autenticación. Por favor, inicia sesión.');
+                    return;
+                }
+
+                const response = await axios.post(
+                    'http://127.0.0.1:8000/api/v1/conteos-bandas',
+                    {
+                        banda_id: bandaId,
+                        fraternidad_id: '1',
+                        cantidad_integrantes: integrantesBanda,
+                        ubicacion: 'Oruro',
+                        turno: 'Mañana',
+                        contador_id: '1',
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Agrega el token en el header
+                            Accept: 'application/json', // Agrega el header Accept
+                        },
+                        withCredentials: true,
+                    }
+                );
+
+                console.log('Datos guardados:', response.data);
+                alert('Datos guardados correctamente!');
+            } catch (error) {
+                console.error('Error al guardar datos:', error);
+                alert('Error al guardar datos. Por favor, inténtalo de nuevo.');
+            }
+        });
+    </script>
+  </Layout>
+
+
+<style>
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+  </style>
+  

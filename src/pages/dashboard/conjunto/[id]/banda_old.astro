@@ -1,0 +1,255 @@
+--- 
+const { id } = Astro.params;
+import Layout from '../../../../layouts/Layout.astro';
+---
+
+<Layout title="Datos de la Banda - Carnaval de Oruro 2025">
+  <main class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+      <div class="bg-white rounded-3xl shadow-xl p-6 min-h-[80vh]">
+        <!-- Header -->
+        <header class="mb-8">
+          <button
+            class="mb-4 text-gray-600 hover:text-gray-800 transition-colors"
+            onclick="history.back()"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 class="text-2xl font-bold text-gray-800">
+            Datos de la Banda
+          </h1>
+        </header>
+
+        <!-- Formulario -->
+        <form id="bandaForm" class="space-y-6" data-id={id}>
+          <input type="hidden" id="conjuntoId" value={id} />
+          <div class="space-y-2">
+            <label for="bandaSelect" class="block text-sm font-medium text-gray-700">
+              Seleccionar Banda
+            </label>
+            <div class="flex gap-2">
+              <div class="relative flex-grow">
+                <select
+                  id="bandaSelect"
+                  class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+                  disabled
+                >
+                  <option value="">Selecciona una banda...</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="btnNuevaBanda"
+                class="px-4 py-3 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="integrantesBanda" class="block text-sm font-medium text-gray-700">
+              Número de Integrantes
+            </label>
+            <input
+              type="number"
+              id="integrantesBanda"
+              name="integrantesBanda"
+              class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-colors"
+              required
+            />
+          </div>
+
+          <!-- Botón Guardar -->
+          <button
+            type="submit"
+            class="w-full py-3 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 mt-8"
+          >
+            Guardar Datos
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal para nueva banda -->
+  <div id="modalNuevaBanda" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3 text-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Agregar Nueva Banda</h3>
+        <div class="mt-2 px-7 py-3">
+          <input
+            type="text"
+            id="nuevaBandaNombre"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Nombre de la banda"
+          />
+        </div>
+        <div class="items-center px-4 py-3">
+          <button
+            id="btnGuardarNuevaBanda"
+            class="px-4 py-2 bg-purple-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+
+<script>
+  import axios from 'axios';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const userId = localStorage.getItem('userId');
+    const ubicacion = localStorage.getItem('ubicacionConteo');
+    const conjuntoIdInput = document.getElementById('conjuntoId') as HTMLInputElement;
+    const id = conjuntoIdInput?.value;
+
+    async function cargarBandas() {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          window.location.href = '/login';
+          return;
+        }
+
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common['Accept'] = 'application/json';
+
+        const response = await axios.get('http://127.0.0.1:8000/api/v1/bandas');
+
+        const bandaSelect = document.getElementById('bandaSelect') as HTMLSelectElement | null;
+        if (bandaSelect) {
+          bandaSelect.innerHTML = '<option value="">Seleccione una banda...</option>';
+          response.data.forEach((banda: { id: string; nombre: string }) => {
+            const option = document.createElement('option');
+            option.value = banda.id;
+            option.textContent = banda.nombre;
+            bandaSelect.appendChild(option);
+          });
+        } else {
+          console.error('El elemento bandaSelect no fue encontrado en el DOM.');
+        }
+      } catch (error) {
+        console.error('Error al cargar las bandas:', error);
+      }
+    }
+
+    const btnNuevaBanda = document.getElementById('btnNuevaBanda') as HTMLButtonElement | null;
+    const modalNuevaBanda = document.getElementById('modalNuevaBanda') as HTMLDivElement | null;
+    const btnGuardarNuevaBanda = document.getElementById('btnGuardarNuevaBanda') as HTMLButtonElement | null;
+    const nuevaBandaNombre = document.getElementById('nuevaBandaNombre') as HTMLInputElement | null;
+
+    btnNuevaBanda?.addEventListener('click', () => {
+        modalNuevaBanda?.classList.remove('hidden');
+    });
+
+    modalNuevaBanda?.addEventListener('click', (e) => {
+        if (e.target === modalNuevaBanda) {
+            modalNuevaBanda?.classList.add('hidden');
+        }
+    });
+
+    btnGuardarNuevaBanda?.addEventListener('click', async () => {
+        const nombreBanda = nuevaBandaNombre?.value.trim();
+        if (nombreBanda) {
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                axios.defaults.headers.common['Accept'] = 'application/json';
+
+                const response = await axios.post('http://127.0.0.1:8000/api/v1/bandas', { nombre: nombreBanda });
+                const nuevaBanda = response.data;
+                const bandaSelect = document.getElementById('bandaSelect') as HTMLSelectElement | null;
+                if (bandaSelect) {
+                    const option = document.createElement('option');
+                    option.value = nuevaBanda.id;
+                    option.textContent = nuevaBanda.nombre;
+                    bandaSelect.appendChild(option);
+                    bandaSelect.value = nuevaBanda.id;
+                }
+                modalNuevaBanda?.classList.add('hidden');
+                if (nuevaBandaNombre) {
+                    nuevaBandaNombre.value = '';
+                }
+            } catch (error) {
+                handleApiError(error);
+            }
+        }
+    });
+
+function handleApiError(error: any) {
+    if (error.response && error.response.status === 422) {
+        alert('Ya existe una banda con ese nombre. Por favor, elija otro nombre.');
+    } else {
+        console.error('Error al guardar la nueva banda:', error);
+        alert('Error al guardar la nueva banda');
+    }
+}
+
+    document.getElementById('bandaForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const bandaId = (document.getElementById('bandaSelect') as HTMLSelectElement)?.value;
+      const integrantes = (document.getElementById('integrantesBanda') as HTMLInputElement)?.value;
+
+      if (!bandaId) {
+        alert('Por favor, seleccione una banda');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          window.location.href = '/login';
+          return;
+        }
+
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common['Accept'] = 'application/json';
+
+        await axios.post(`http://127.0.0.1:8000/api/v1/conteos`, {
+          fraternidad_id: id,
+          banda_id: bandaId,
+          cantidad_integrantes: integrantes,
+          bloques: 1,
+          ubicacion: ubicacion,
+          contador_id: userId,
+          turno: '',
+        });
+
+        alert('Datos de la banda guardados correctamente');
+        history.back();
+      } catch (error) {
+        console.error('Error al guardar los datos de la banda:', error);
+        alert('Error al guardar los datos de la banda');
+      }
+    });
+
+    cargarBandas();
+  });
+</script>
+
+<style>
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+</style>
+

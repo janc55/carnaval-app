@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Selección de Ubicación - Carnaval de Oruro 2025">
+  <main class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+      <div class="bg-white rounded-3xl shadow-xl p-6 min-h-[80vh]">
+        <header class="mb-8">
+          <h1 class="text-2xl font-bold text-gray-800 text-center">
+            Seleccione Ubicación de Conteo
+          </h1>
+        </header>
+
+        <div class="space-y-4">
+          <button
+            class="w-full py-4 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200"
+            data-ubicacion="Av. 6 de agosto"
+          >
+            Av. 6 de Agosto
+          </button>
+          <button
+            class="w-full py-4 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200"
+            data-ubicacion="Plaza 10 de febrero"
+          >
+            Plaza 10 de febrero
+          </button>
+          <button
+            class="w-full py-4 px-6 text-white bg-purple-600 rounded-xl hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200"
+            data-ubicacion="Av. Civica"
+          >
+            Av. Cívica
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Verificar si el usuario está autenticado
+  const authToken = localStorage.getItem('authToken');
+  if (!authToken) {
+    window.location.href = '/login'; // Redirigir al login si no hay token
+  } else {
+    // Si el usuario está autenticado, permitir la selección de ubicación
+    document.querySelectorAll('button[data-ubicacion]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const ubicacion = (e.target as HTMLButtonElement).getAttribute('data-ubicacion') ?? '';
+        localStorage.setItem('ubicacionConteo', ubicacion);
+        window.location.href = '/dashboard';
+      });
+    });
+  }
+</script>
