@@ -1,6 +1,7 @@
 ---
 import axios from 'axios'; // Importamos axios
 import Layout from '../../../../layouts/Layout.astro';
+const { id } = Astro.params;
 
 interface Banda {
   id: string;
@@ -39,7 +40,7 @@ try {
   
           <!-- Formulario -->
           <form id="bandaForm" class="space-y-6" >
-            <input type="hidden" id="conjuntoId" />
+            <input type="hidden" id="conjuntoId" value={id}>
             <div class="space-y-2">
               <label for="bandas" class="block text-sm font-medium text-gray-700">
                 Seleccionar Banda
@@ -154,13 +155,18 @@ try {
 
                     const response = await axios.post('http://127.0.0.1:8000/api/v1/bandas', { nombre: nombreBanda });
                     const nuevaBanda = response.data;
-                    const bandaSelect = document.getElementById('bandaSelect') as HTMLSelectElement | null;
-                    if (bandaSelect) {
+                    
+                    // 3. Actualizar el select obteniendo los datos de la API de nuevo
+                    await actualizarSelectBandas();
+                    
+                    // Actualizar el select con la nueva banda
+                    const bandasSelect = document.getElementById('bandas') as HTMLSelectElement | null; // Corregido el ID
+                    if (bandasSelect) {
                         const option = document.createElement('option');
                         option.value = nuevaBanda.id;
                         option.textContent = nuevaBanda.nombre;
-                        bandaSelect.appendChild(option);
-                        bandaSelect.value = nuevaBanda.id;
+                        bandasSelect.appendChild(option);
+                        bandasSelect.value = nuevaBanda.id;
                     }
                     modalNuevaBanda?.classList.add('hidden');
                     if (nuevaBandaNombre) {
@@ -171,6 +177,31 @@ try {
                 }
             }
         });
+
+        // Función para actualizar el select con las bandas obtenidas de la API
+        async function actualizarSelectBandas() {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/api/v1/bandas');
+                const bandas = response.data;
+                console.log('Bandas:', bandas);
+                
+                const bandaSelect = document.getElementById('bandas') as HTMLSelectElement | null;
+                if (bandaSelect) {
+                    // Limpiar el select antes de agregar las nuevas opciones
+                    bandaSelect.innerHTML = '';
+
+                    // Recorrer las bandas y agregarlas al select
+                    bandas.forEach((banda: any) => {
+                        const option = document.createElement('option');
+                        option.value = banda.id;
+                        option.textContent = banda.nombre;
+                        bandaSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al obtener bandas:', error);
+            }
+        }
 
         function handleApiError(error: any) {
             if (error.response && error.response.status === 422) {
@@ -185,7 +216,11 @@ try {
             event.preventDefault();
 
             const bandaSelect = document.getElementById('bandas') as HTMLSelectElement;
+            const userId = localStorage.getItem('userId');
+            const ubicacion = localStorage.getItem('ubicacionConteo');
             const integrantesInput = document.getElementById('integrantesBanda') as HTMLInputElement;
+            const conjuntoIdInput = document.getElementById('conjuntoId') as HTMLInputElement;
+            const id = conjuntoIdInput?.value;
 
             if (!bandaSelect || !integrantesInput) {
                 console.error('Elementos del formulario no encontrados.');
@@ -209,11 +244,11 @@ try {
                     'http://127.0.0.1:8000/api/v1/conteos-bandas',
                     {
                         banda_id: bandaId,
-                        fraternidad_id: '1',
+                        fraternidad_id: id,
                         cantidad_integrantes: integrantesBanda,
-                        ubicacion: 'Oruro',
-                        turno: 'Mañana',
-                        contador_id: '1',
+                        ubicacion: ubicacion,
+                        turno: '',
+                        contador_id: userId,
                     },
                     {
                         headers: {

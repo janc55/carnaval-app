@@ -1,0 +1,62 @@
+---
+const { currentPage } = Astro.props;
+---
+
+<nav class="bg-transparent fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <img class="h-10 w-auto" src="/logo-carnaval.png" alt="Logo Carnaval de Oruro">
+          </div>
+        </div>
+        <div class="flex items-center">
+          <div class="ml-3 relative">
+            <div>
+              <button id="user-menu-button" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition duration-150 ease-in-out" aria-label="User menu" aria-haspopup="true">
+                <img class="h-8 w-8 rounded-full" src="/placeholder-avatar.webp" alt="Avatar del usuario">
+              </button>
+            </div>
+            <div id="user-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
+              <div class="py-1 rounded-md bg-white shadow-xs">
+                <a href="/dashboard" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${currentPage === 'dashboard' ? 'bg-gray-100' : ''}`}>Dashboard</a>
+                <a href="/mis-conteos" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${currentPage === 'mis-conteos' ? 'bg-gray-100' : ''}`}>Mis Conteos</a>
+                <a href="/seleccion-ubicacion" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cambiar Ubicación</a>
+                <button id="logout-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar Sesión</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+<script>
+  const userMenuButton = document.getElementById('user-menu-button');
+  const userMenu = document.getElementById('user-menu');
+  const logoutButton = document.getElementById('logout-button');
+
+  userMenuButton?.addEventListener('click', () => {
+    userMenu?.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!userMenuButton?.contains(event.target as Node) && !userMenu?.contains(event.target as Node)) {
+      userMenu?.classList.add('hidden');
+    }
+  });
+
+  logoutButton?.addEventListener('click', () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('ubicacionConteo');
+    window.location.href = '/login';
+  });
+</script>
+
+<style>
+  /* Estilos adicionales si son necesarios */
+  #user-menu-button {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+</style>

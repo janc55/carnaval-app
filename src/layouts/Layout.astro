@@ -1,3 +1,9 @@
+---
+import UserNav from '../components/UserNav.astro';
+
+const { title, currentPage, showUserNav = true } = Astro.props;
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -8,8 +14,11 @@
 		<link rel="stylesheet" href="/src/styles/global.css" /> <!-- Importa aquí tu archivo de estilos de Tailwind -->
 		<title>Astro Basics</title>
 	</head>
-	<body>
-		<slot />
+	<body class="bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500">
+		{showUserNav && <UserNav currentPage={currentPage} />}
+		<div class="">
+		  <slot />
+		</div>
 	</body>
 </html>
 
@@ -21,3 +30,13 @@
 		height: 100%;
 	}
 </style>
+
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+	  const navbar = document.querySelector('nav');
+	  if (navbar) {
+		const navbarHeight = navbar.offsetHeight;
+		document.body.style.paddingTop = `${navbarHeight}px`;
+	  }
+	});
+</script>

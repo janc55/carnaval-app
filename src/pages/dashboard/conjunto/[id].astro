@@ -1,6 +1,28 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import axios from 'axios'; // Importamos axios
 const { id } = Astro.params;
+
+interface Banda {
+  id: string;
+  nombre: string;
+  integrantes: number;
+}
+
+let bandasFraternidad: Banda[] = [];
+
+// Ejecutar la carga de datos en el servidor durante la compilación
+try {
+  if (id) {
+    const response = await axios.get(`http://127.0.0.1:8000/api/v1/fraternidades/${id}/bandas`);
+    bandasFraternidad = response.data;
+    console.log('Bandas de la fraternidad:', bandasFraternidad);
+  } else {
+    console.error('No se encontró el ID de la fraternidad en los parámetros de la ruta.');
+  }
+} catch (error) {
+  console.error('Error al cargar bandas de la fraternidad:', error);
+}
 ---
 
 <Layout title="Datos del Conjunto - Carnaval de Oruro 2025">
@@ -48,6 +70,12 @@ const { id } = Astro.params;
               required
             />
           </div>
+          <h2>Bandas Agregadas a la Fraternidad</h2>
+          <ul>
+              {bandasFraternidad.map((banda) => (
+                  <li>{banda.nombre} - Integrantes: {banda.integrantes}</li>
+              ))}
+          </ul>
 
           <button
             type="button"
