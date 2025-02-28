@@ -2,27 +2,9 @@
 import Layout from '../../../layouts/Layout.astro';
 import axios from 'axios'; // Importamos axios
 const { id } = Astro.params;
+console.log('ID:', id); // Imprime el ID en la consola
 
-interface Banda {
-  id: string;
-  nombre: string;
-  integrantes: number;
-}
 
-let bandasFraternidad: Banda[] = [];
-
-// Ejecutar la carga de datos en el servidor durante la compilación
-try {
-  if (id) {
-    const response = await axios.get(`http://127.0.0.1:8000/api/v1/fraternidades/${id}/bandas`);
-    bandasFraternidad = response.data;
-    console.log('Bandas de la fraternidad:', bandasFraternidad);
-  } else {
-    console.error('No se encontró el ID de la fraternidad en los parámetros de la ruta.');
-  }
-} catch (error) {
-  console.error('Error al cargar bandas de la fraternidad:', error);
-}
 ---
 
 <Layout title="Datos del Conjunto - Carnaval de Oruro 2025">
@@ -71,10 +53,7 @@ try {
             />
           </div>
           <h2>Bandas Agregadas a la Fraternidad</h2>
-          <ul>
-              {bandasFraternidad.map((banda) => (
-                  <li>{banda.nombre} - Integrantes: {banda.integrantes}</li>
-              ))}
+          <ul id="bandasList">
           </ul>
 
           <button
@@ -102,6 +81,7 @@ try {
 
 <script>
   import axios, { AxiosError } from 'axios';
+  
 
   document.addEventListener('DOMContentLoaded', () => {
     const userId = localStorage.getItem('userId');
@@ -192,4 +172,52 @@ try {
 
     cargarConjunto();
   });
+
+  async function fetchBands() {
+    interface Banda {
+  nombre: string;
+  integrantes: number;
+  // Agrega otras propiedades de banda según sea necesario
+}
+    const authToken = localStorage.getItem('authToken');
+    console.log('Token:', authToken);
+    const conjuntoIdInput = document.getElementById('conjuntoId') as HTMLInputElement;
+    const id = conjuntoIdInput?.value;
+
+    if (authToken) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/v1/fraternidades/${id}/bandas`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            Accept: 'application/json',
+          },
+        });
+        console.log('Bandas:', response.data); // Muestra los datos en la consola del navegador
+        // Aquí puedes manejar los datos, por ejemplo, asignarlos a una variable para renderizarlos en el template
+        renderBands(response.data);
+      } catch (error) {
+        console.error('Error al obtener bandas:', error);
+      }
+    } else {
+      console.warn('Usuario no autenticado');
+    }
+    function renderBands(bandas: Banda[]) {
+      const bandasList = document.getElementById('bandasList')!;
+      bandasList.innerHTML = ''; // Limpia la lista antes de añadir nuevas bandas
+
+      if (bandas.length > 0) {
+        bandas.forEach(banda => {
+          const li = document.createElement('li');
+          li.textContent = `${banda.nombre} - Integrantes: ${banda.integrantes}`;
+          bandasList.appendChild(li);
+        });
+      } else {
+        const li = document.createElement('li');
+        li.textContent = 'No se encontraron bandas para este conjunto.';
+        bandasList.appendChild(li);
+      }
+    }
+  }
+
+  fetchBands(); // Llama a la función para obtener las bandas
 </script>
