@@ -20,8 +20,8 @@ const { currentPage } = Astro.props;
             <div id="user-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg hidden">
               <div class="py-1 rounded-md bg-white shadow-xs">
                 <a href="/dashboard" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${currentPage === 'dashboard' ? 'bg-gray-100' : ''}`}>Dashboard</a>
-                <a href="/mis-conteos" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${currentPage === 'mis-conteos' ? 'bg-gray-100' : ''}`}>Mis Conteos</a>
-                <a href="/seleccion-ubicacion" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cambiar Ubicación</a>
+                <a href="/dashboard/mis-conteos" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${currentPage === 'mis-conteos' ? 'bg-gray-100' : ''}`}>Mis Conteos</a>
+                <a href="/dashboard/seleccion-ubicacion" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cambiar Ubicación</a>
                 <button id="logout-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar Sesión</button>
               </div>
             </div>

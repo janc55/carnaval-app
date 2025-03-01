@@ -52,20 +52,27 @@ console.log('ID:', id); // Imprime el ID en la consola
               required
             />
           </div>
-          <h2>Bandas Agregadas a la Fraternidad</h2>
-          <ul id="bandasList">
-          </ul>
+          <div class="space-y-4 mt-8">
+            
+            <div class="space-y-4">
+              <h2 class="text-sm font-semibold text-gray-800 mb-4">Bandas Agregadas</h2>
+              <div id="bandasList" class="space-y-3">
+                <!-- Las bandas se cargarán aquí dinámicamente -->
+              </div>
+            </div>
+            <button
+              type="button"
+              id="btnAgregarBanda"
+              class="w-full py-3 px-6 text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar Banda
+            </button>
+          </div>
 
-          <button
-            type="button"
-            id="btnAgregarBanda"
-            class="w-full py-3 px-6 text-purple-600 bg-purple-50 rounded-xl hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center gap-2"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Agregar Banda
-          </button>
+          
 
           <button
             type="submit"
@@ -174,11 +181,17 @@ console.log('ID:', id); // Imprime el ID en la consola
   });
 
   async function fetchBands() {
+
+    // Definir la interfaz para las bandas
     interface Banda {
-  nombre: string;
-  integrantes: number;
-  // Agrega otras propiedades de banda según sea necesario
-}
+      nombre: string;
+      integrantes: number;
+      user_id: number;
+    }
+
+    // Recuperar el userId desde el localStorage
+    const userId = localStorage.getItem('userId');
+
     const authToken = localStorage.getItem('authToken');
     console.log('Token:', authToken);
     const conjuntoIdInput = document.getElementById('conjuntoId') as HTMLInputElement;
@@ -193,8 +206,11 @@ console.log('ID:', id); // Imprime el ID en la consola
           },
         });
         console.log('Bandas:', response.data); // Muestra los datos en la consola del navegador
+        const bandas: Banda[] = response.data;
+        // Filtrar las bandas para mostrar solo las que pertenecen al usuario autenticado
+        const userBands = bandas.filter((banda: Banda) => banda.user_id === parseInt(userId!));
         // Aquí puedes manejar los datos, por ejemplo, asignarlos a una variable para renderizarlos en el template
-        renderBands(response.data);
+        renderBands(userBands);
       } catch (error) {
         console.error('Error al obtener bandas:', error);
       }
@@ -203,19 +219,32 @@ console.log('ID:', id); // Imprime el ID en la consola
     }
     function renderBands(bandas: Banda[]) {
       const bandasList = document.getElementById('bandasList')!;
-      bandasList.innerHTML = ''; // Limpia la lista antes de añadir nuevas bandas
+      // Definir los 5 colores
+      const colors = [
+        'border-orange-400 bg-orange-50', 
+        'border-red-400 bg-red-50', 
+        'border-green-400 bg-green-50', 
+        'border-blue-400 bg-blue-50', 
+        'border-yellow-400 bg-yellow-50'
+      ];
 
-      if (bandas.length > 0) {
-        bandas.forEach(banda => {
-          const li = document.createElement('li');
-          li.textContent = `${banda.nombre} - Integrantes: ${banda.integrantes}`;
-          bandasList.appendChild(li);
-        });
-      } else {
-        const li = document.createElement('li');
-        li.textContent = 'No se encontraron bandas para este conjunto.';
-        bandasList.appendChild(li);
-      }
+      const textColors = [
+        'bg-orange-100 text-orange-700', 
+        'bg-red-100 text-red-700', 
+        'bg-green-100 text-green-700', 
+        'bg-blue-100 text-blue-700', 
+        'bg-yellow-100 text-yellow-700'
+      ];
+      bandasList.innerHTML = bandas.map((banda, index) => `
+        <div class="flex items-center justify-between p-3 rounded-xl border-2 ${colors[index % 5]} transition-transform hover:scale-[1.02]">
+          <span class="text-gray-800">${banda.nombre}</span>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 rounded-lg ${textColors[index % 5]} font-semibold">
+              ${banda.integrantes}
+            </span>
+          </div>
+        </div>
+      `).join('');
     }
   }
 
