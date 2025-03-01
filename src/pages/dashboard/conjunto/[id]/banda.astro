@@ -13,7 +13,7 @@ let bandas: Banda[] = [];
 
 // Hacer la solicitud a la API usando Axios en el lado del servidor
 try {
-  const response = await axios.get('http://127.0.0.1:8000/api/v1/bandas');
+  const response = await axios.get('https://carnaval.aulavirtualunior.com/api/v1/bandas');
   bandas = response.data; // Guardamos los datos obtenidos en la variable 'bandas'
 } catch (error) {
   console.error('Error al obtener las bandas:', error);
@@ -154,7 +154,7 @@ try {
                     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                     axios.defaults.headers.common['Accept'] = 'application/json';
 
-                    const response = await axios.post('http://127.0.0.1:8000/api/v1/bandas', { nombre: nombreBanda });
+                    const response = await axios.post('https://carnaval.aulavirtualunior.com/api/v1/bandas', { nombre: nombreBanda });
                     const nuevaBanda = response.data;
                     
                     // 3. Actualizar el select obteniendo los datos de la API de nuevo
@@ -182,7 +182,7 @@ try {
         // Función para actualizar el select con las bandas obtenidas de la API
         async function actualizarSelectBandas() {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/v1/bandas');
+                const response = await axios.get('https://carnaval.aulavirtualunior.com/api/v1/bandas');
                 const bandas = response.data;
                 console.log('Bandas:', bandas);
                 
@@ -242,7 +242,7 @@ try {
                 }
 
                 const response = await axios.post(
-                    'http://127.0.0.1:8000/api/v1/conteos-bandas',
+                    'https://carnaval.aulavirtualunior.com/api/v1/conteos-bandas',
                     {
                         banda_id: bandaId,
                         fraternidad_id: id,

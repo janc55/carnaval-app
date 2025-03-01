@@ -116,7 +116,7 @@ import Layout from '../layouts/Layout.astro';
         
         try {
           // Llamada a la API mediante Axios
-          const response = await axios.post('http://127.0.0.1:8000/api/v1/auth/login', {
+          const response = await axios.post('https://carnaval.aulavirtualunior.com/api/v1/auth/login', {
             email,
             password
           });

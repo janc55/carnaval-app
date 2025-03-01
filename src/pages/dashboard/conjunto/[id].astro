@@ -103,7 +103,7 @@ console.log('ID:', id); // Imprime el ID en la consola
         const bloquesInput = document.getElementById('bloques') as HTMLInputElement;
 
         if (nombreConjuntoElement && id) {
-          const response = await axios.get(`http://127.0.0.1:8000/api/v1/fraternidades/${id}`);
+          const response = await axios.get(`https://carnaval.aulavirtualunior.com/api/v1/fraternidades/${id}`);
           nombreConjuntoElement.textContent = response.data.nombre;
 
           if (integrantesInput && response.data.integrantes) {
@@ -148,7 +148,7 @@ console.log('ID:', id); // Imprime el ID en la consola
         axios.defaults.headers.common['Accept'] = 'application/json';
 
         try {
-          const response = await axios.post(`http://127.0.0.1:8000/api/v1/conteos`, formData);
+          const response = await axios.post(`https://carnaval.aulavirtualunior.com/api/v1/conteos`, formData);
 
           if (response.status === 201 || response.status === 200) {
             alert('Datos guardados correctamente');
@@ -199,7 +199,7 @@ console.log('ID:', id); // Imprime el ID en la consola
 
     if (authToken) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/v1/fraternidades/${id}/bandas`, {
+        const response = await axios.get(`https://carnaval.aulavirtualunior.com/api/v1/fraternidades/${id}/bandas`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             Accept: 'application/json',
