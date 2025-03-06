@@ -1,11 +1,576 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Carnaval de Oruro 2025 - Estadísticas" showUserNav={false}>
+	<main
+		class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500"
+	>
+		<!-- Hero Section -->
+		<section class="relative py-16 px-4 text-center text-white">
+			<div class="absolute inset-0 bg-black bg-opacity-30 z-0"></div>
+			<div class="relative z-10 max-w-5xl mx-auto">
+				<h1 class="text-4xl md:text-6xl font-bold mb-4">
+					Carnaval de Oruro 2025
+				</h1>
+				<p class="text-xl md:text-2xl mb-6">Estadísticas Oficiales</p>
+			</div>
+		</section>
+
+		<!-- Dashboard Section -->
+		<section class="py-8 px-4">
+			<div class="max-w-6xl mx-auto">
+				<div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+					<!-- Filtros -->
+					<div class="p-6 bg-gray-50 border-b">
+						<h2 class="text-2xl font-bold text-gray-800 mb-6">
+							Dashboard de Conjuntos
+						</h2>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label
+									for="grupo-select"
+									class="block text-sm font-medium text-gray-700 mb-1"
+								>
+									Seleccione un grupo
+								</label>
+								<div class="relative">
+									<select
+										id="grupo-select"
+										class="block w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 appearance-none transition-colors"
+									>
+										<option value=""
+											>Seleccionar grupo...</option
+										>
+										<option value="1">Grupo 1</option>
+										<option value="2">Grupo 2</option>
+										<option value="3">Grupo 3</option>
+										<option value="4">Grupo 4</option>
+										<option value="5">Grupo 5</option>
+										<option value="6">Grupo 6</option>
+									</select>
+									<div
+										class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+									>
+										<svg
+											class="w-5 h-5 text-gray-400"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<label
+									for="conjunto-select"
+									class="block text-sm font-medium text-gray-700 mb-1"
+								>
+									Seleccione un conjunto
+								</label>
+								<div class="relative">
+									<select
+										id="conjunto-select"
+										class="block w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 appearance-none transition-colors"
+									>
+										<option value=""
+											>Todos los conjuntos</option
+										>
+										<!-- Se llenará dinámicamente -->
+									</select>
+									<div
+										class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none"
+									>
+										<svg
+											class="w-5 h-5 text-gray-400"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="M19 9l-7 7-7-7"></path>
+										</svg>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Estadísticas Generales -->
+					<div id="stats-container" class="p-6">
+						<div id="loading-stats" class="text-center py-8">
+							<div
+								class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"
+							>
+							</div>
+							<p class="mt-2 text-gray-600">
+								Cargando estadísticas...
+							</p>
+						</div>
+
+						<div id="stats-content" class="hidden">
+							<!-- Se llenará dinámicamente -->
+						</div>
+					</div>
+
+					<!-- Listado de Conjuntos -->
+					<div class="p-6 bg-gray-50 border-t">
+						<h3 class="text-xl font-bold text-gray-800 mb-4">
+							Listado de Conjuntos
+						</h3>
+
+						<div
+							id="conjuntos-table-container"
+							class="overflow-x-auto"
+						>
+							<table
+								class="min-w-full bg-white rounded-xl overflow-hidden"
+							>
+								<thead class="bg-gray-100">
+									<tr>
+										<th
+											class="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+											>Grupo</th
+										>
+										<th
+											class="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+											>Nombre</th
+										>
+										<th
+											class="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+											>Integrantes</th
+										>
+										<th
+											class="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+											>Bandas</th
+										>
+										<th
+											class="py-3 px-4 text-left text-sm font-semibold text-gray-700"
+											>Acciones</th
+										>
+									</tr>
+								</thead>
+								<tbody id="conjuntos-table-body">
+									<tr>
+										<td
+											colspan="5"
+											class="py-4 px-4 text-center text-gray-500"
+										>
+											Cargando conjuntos...
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- About Data Section -->
+		<section id="about" class="py-16 px-4 bg-white">
+			<div class="max-w-4xl mx-auto">
+				<h2 class="text-3xl font-bold text-center mb-8 text-gray-800">
+					Acerca de los Datos
+				</h2>
+				<div class="prose prose-lg mx-auto">
+					<p>
+						Las estadísticas presentadas en esta plataforma son el
+						resultado de conteos realizados en diferentes
+						ubicaciones a lo largo del recorrido del Carnaval de
+						Oruro 2025.
+					</p>
+					<p>
+						<strong>Nota importante:</strong> Los datos mostrados tienen
+						un margen de error estimado del 5-10% debido a la naturaleza
+						dinámica del evento. Los conteos fueron realizados en las
+						siguientes ubicaciones:
+					</p>
+					<ul>
+						<li>Av. 6 de Agosto</li>
+						<li>La Plaza</li>
+						<li>Av. Cívica</li>
+					</ul>
+					<p>
+						Cada conjunto fue contado múltiples veces en diferentes
+						puntos para obtener una estimación más precisa. Sin
+						embargo, es importante considerar que el número de
+						participantes puede variar a lo largo del recorrido.
+					</p>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Modal para detalles del conjunto -->
+	<div
+		id="conjunto-modal"
+		class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+	>
+		<div
+			class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4"
+		>
+			<div
+				class="sticky top-0 bg-white p-4 border-b flex justify-between items-center"
+			>
+				<h3 class="text-xl font-bold text-gray-800" id="modal-title">
+					Detalles del Conjunto
+				</h3>
+				<button
+					id="close-modal"
+					class="text-gray-500 hover:text-gray-700"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M6 18L18 6M6 6l12 12"></path>
+					</svg>
+				</button>
+			</div>
+			<div class="p-6" id="modal-content">
+				<!-- El contenido del modal se cargará dinámicamente -->
+			</div>
+		</div>
+	</div>
 </Layout>
+
+<script>
+	import type { any } from "astro:schema";
+import axios from "axios";
+
+	// Referencias a elementos del DOM
+	const grupoSelect = document.getElementById("grupo-select") as HTMLSelectElement;
+	const conjuntoSelect = document.getElementById("conjunto-select") as HTMLSelectElement;
+	const conjuntosTableBody = document.getElementById("conjuntos-table-body"); // Agregado
+	const conjuntoModal = document.getElementById("conjunto-modal");
+	const modalTitle = document.getElementById("modal-title");
+	const modalContent = document.getElementById("modal-content");
+	const closeModal = document.getElementById("close-modal");
+
+	const statsContainer = document.getElementById("stats-container");
+	const loadingStats = document.getElementById("loading-stats");
+	const statsContent = document.getElementById("stats-content");
+
+	interface Conteo {
+		id: string;
+		nombre: string;
+	}
+
+	let conteos: Conteo[] = [];
+
+	// Cargar conjuntos cuando se selecciona un grupo
+	grupoSelect?.addEventListener("change", async (e) => {
+		const grupoId = (e.target as HTMLSelectElement).value;
+
+		if (conjuntoSelect && conjuntosTableBody) { // Verificamos que ambos elementos existan
+			if (!grupoId) {
+				conjuntoSelect.disabled = true;
+				conjuntoSelect.innerHTML = '<option value="">Primero seleccione un grupo...</option>';
+				conjuntosTableBody.innerHTML = `
+					<tr>
+						<td colspan="5" class="py-4 px-4 text-center text-gray-500">
+							Seleccione un grupo para cargar los conjuntos.
+						</td>
+					</tr>
+				`;
+				return;
+			}
+
+			try {
+				// Cargar conjuntos para el select
+				const response = await axios.get("http://127.0.0.1:8000/api/v1/fraternidades");
+				const conjuntos = response.data.filter((c: any) => c.grupo.toString() === grupoId);
+				
+				conjuntoSelect.innerHTML = `
+					<option value="">Seleccione un conjunto...</option>
+					${conjuntos.map((c: any) => `<option value="${c.id}">${c.nombre}</option>`).join("")}
+				`;
+				conjuntoSelect.disabled = false;
+				
+			} catch (error) {
+				console.error("Error al cargar los conjuntos:", error);
+				conjuntosTableBody.innerHTML = `
+					<tr>
+						<td colspan="5" class="py-4 px-4 text-center text-gray-500">
+							Error al cargar los conjuntos.
+						</td>
+					</tr>
+				`;
+			}
+		}
+	});
+
+	// Habilitar botón cuando se selecciona un conjunto
+	conjuntoSelect?.addEventListener("change", (e) => {
+		const conjuntoId = (e.target as HTMLSelectElement).value;
+		if (conjuntoId) {
+			cargarEstadisticasConjunto(conjuntoId);
+		} else {
+			cargarEstadisticasGenerales(); // Si no se selecciona un conjunto, cargar estadísticas generales
+		}
+	});
+
+	async function actualizarTablaConjuntos() {
+		const conjuntosTableBody = document.getElementById("conjuntos-table-body");
+		if (!conjuntosTableBody) {
+			console.error("No se encontró el elemento con ID 'conjuntos-table-body'");
+			return;
+		}
+
+		try {
+			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const conjuntos = response.data; // Ahora 'conjuntos' es un array
+
+			// Limpiar la tabla antes de agregar nuevas filas
+			conjuntosTableBody.innerHTML = "";
+
+			// Si no hay conjuntos
+			if (!conjuntos || conjuntos.length === 0) {
+				conjuntosTableBody.innerHTML = `
+					<tr>
+						<td colspan="5" class="py-4 px-4 text-center text-gray-500">
+							No se encontraron conjuntos.
+						</td>
+					</tr>
+				`;
+				return;
+			}
+
+			// Generar filas de la tabla
+			let rows = "";
+			conjuntos.forEach((conjunto:any) => {
+				const promedioIntegrantes = conjunto.promedio_integrantes;
+				const totalBandas = conjunto.total_bandas;
+
+				rows += `
+					<tr class="border-b hover:bg-gray-50">
+						<td class="py-3 px-4">${conjunto.fraternidad_id || "N/A"}</td>
+						<td class="py-3 px-4">${conjunto.nombre_fraternidad}</td>
+						<td class="py-3 px-4">${promedioIntegrantes}</td>
+						<td class="py-3 px-4">${totalBandas}</td>
+						<td class="py-3 px-4">
+							<button 
+								class="px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm font-medium ver-detalles"
+								data-id="${conjunto.fraternidad_id}"
+							>
+								Ver detalles
+							</button>
+						</td>
+					</tr>
+				`;
+			});
+
+			conjuntosTableBody.innerHTML = rows;
+
+			// Agregar event listeners a los botones de detalles
+			document.querySelectorAll(".ver-detalles").forEach((button) => {
+				button.addEventListener("click", () => {
+					const conjuntoId = button.getAttribute("data-id");
+					// Aquí puedes llamar a la función para mostrar los detalles del conjunto
+				});
+			});
+		} catch (error) {
+			console.error("Error al cargar los conjuntos:", error);
+			conjuntosTableBody.innerHTML = `
+				<tr>
+					<td colspan="5" class="py-4 px-4 text-center text-gray-500">
+						Error al cargar los conjuntos.
+					</td>
+				</tr>
+			`;
+		}
+	}
+
+	async function cargarEstadisticasGenerales() {
+		if (!statsContainer || !loadingStats || !statsContent) {
+			console.error("Elementos de estadísticas no encontrados.");
+			return;
+		}
+
+		loadingStats.classList.remove("hidden");
+		statsContent.classList.add("hidden");
+
+		try {
+			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const conjuntos = response.data;
+
+			const totalConjuntos = conjuntos.length;
+			let promedioIntegrantesTotal = 0;
+			let totalBandasIntegrantes = 0;
+
+			conjuntos.forEach((conjunto:any) => {
+				promedioIntegrantesTotal += conjunto.promedio_integrantes;
+				conjunto.bandas.forEach((banda:any) => {
+					totalBandasIntegrantes += parseFloat(banda.promedio_integrantes);
+				});
+			});
+
+			const promedioIntegrantes = promedioIntegrantesTotal;
+
+			statsContent.innerHTML = `
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl p-6 text-white shadow-lg">
+						<h4 class="text-lg font-semibold opacity-80">Total Conjuntos</h4>
+						<p class="text-4xl font-bold mt-2">${totalConjuntos}</p>
+					</div>
+
+					<div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-xl p-6 text-white shadow-lg">
+						<h4 class="text-lg font-semibold opacity-80">Danzarines</h4>
+						<p class="text-4xl font-bold mt-2">${promedioIntegrantes}</p>
+					</div>
+
+					<div class="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+						<h4 class="text-lg font-semibold opacity-80">Músicos</h4>
+						<p class="text-4xl font-bold mt-2">${totalBandasIntegrantes}</p>
+					</div>
+				</div>
+			`;
+
+			loadingStats.classList.add("hidden");
+			statsContent.classList.remove("hidden");
+		} catch (error) {
+			console.error("Error al cargar las estadísticas:", error);
+			loadingStats.classList.add("hidden");
+			statsContent.innerHTML = "<p>Error al cargar las estadísticas.</p>";
+			statsContent.classList.remove("hidden");
+		}
+	}
+
+	async function cargarEstadisticasConjunto(conjuntoId:any) {
+		if (!statsContainer || !loadingStats || !statsContent) {
+			console.error("Elementos de estadísticas no encontrados.");
+			return;
+		}
+
+		loadingStats.classList.remove("hidden");
+		statsContent.classList.add("hidden");
+
+		try {
+			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const conjuntos = response.data;
+
+			// Buscar el conjunto correspondiente al conjuntoId
+			const conjunto = conjuntos.find((c:any) => c.fraternidad_id.toString() === conjuntoId);
+
+			if (!conjunto) {
+				console.error("Conjunto no encontrado.");
+				loadingStats.classList.add("hidden");
+				statsContent.innerHTML = "<p>Conjunto no encontrado.</p>";
+				statsContent.classList.remove("hidden");
+				return;
+			}
+
+			const totalIntegrantes = conjunto.promedio_integrantes;
+			const conteos = conjunto.conteos || [];
+			const todasBandas = conjunto.bandas || [];
+
+			statsContent.innerHTML = `
+				<div class="space-y-8">
+					<div class="text-center">
+						<div class="text-6xl font-bold text-purple-600 mb-2">${totalIntegrantes}</div>
+						<p class="text-gray-600">Integrantes promedio</p>
+					</div>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div class="bg-purple-50 p-4 rounded-xl">
+							<div class="text-2xl font-bold text-purple-700">${conjunto.promedio_bloques || 'N/A'}</div>
+							<p class="text-purple-600 text-sm">Bloques</p>
+						</div>
+						<div class="bg-pink-50 p-4 rounded-xl">
+							<div class="text-2xl font-bold text-pink-700">${conteos.length}</div>
+							<p class="text-pink-600 text-sm">Conteos realizados</p>
+						</div>
+					</div>
+
+					${todasBandas.length > 0 ? `
+						<div>
+							<h4 class="text-lg font-bold text-gray-800 mb-4">Bandas</h4>
+							<div class="space-y-3">
+								${todasBandas.map((banda:any, index:any) => `
+									<div class="flex items-center justify-between p-3 rounded-xl border-2 ${
+										index % 2 === 0 ? 'border-orange-400 bg-orange-50' : 'border-red-400 bg-red-50'
+									}">
+										<span class="font-medium text-gray-800">${banda.nombre_banda}</span>
+										<div class="flex items-center gap-2">
+											<span class="px-3 py-1 rounded-lg ${
+												index % 2 === 0 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
+											} font-semibold">
+												${banda.promedio_integrantes}
+											</span>
+										</div>
+									</div>
+								`).join('')}
+							</div>
+						</div>
+					` : ''}
+
+					<div class="bg-gray-50 p-4 rounded-xl text-sm text-gray-600">
+						<p class="font-semibold mb-2">Acerca de estos datos:</p>
+						<p>Los números mostrados son promedios basados en ${conteos.length} conteos realizados en diferentes ubicaciones.</p>
+						<p class="mt-2">Estos datos tienen un margen de error estimado del 5-10% debido a la naturaleza dinámica del evento.</p>
+					</div>
+
+					${conteos.length > 0 ? `
+						<div>
+							<h4 class="text-lg font-bold text-gray-800 mb-2">Ubicaciones de conteo</h4>
+							<ul class="list-disc pl-5 text-gray-600">
+								${[...new Set(conteos.map((c:any) => c.ubicacion))].filter(u => u).map(ubicacion => `
+									<li>${ubicacion}</li>
+								`).join('') || '<li>Ubicación no especificada</li>'}
+							</ul>
+						</div>
+					` : ''}
+				</div>
+			`;
+
+			loadingStats.classList.add("hidden");
+			statsContent.classList.remove("hidden");
+		} catch (error) {
+			console.error("Error al cargar las estadísticas del conjunto:", error);
+			loadingStats.classList.add("hidden");
+			statsContent.innerHTML = "<p>Error al cargar las estadísticas del conjunto.</p>";
+			statsContent.classList.remove("hidden");
+		}
+	}
+	// Cargar la tabla al cargar la página
+	document.addEventListener("DOMContentLoaded", () => {
+		// Cargar datos en la tabla
+		actualizarTablaConjuntos();
+		cargarEstadisticasGenerales();
+	});
+	
+</script>
+
+<style>
+	/* Estilos adicionales */
+	select {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+	}
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+</style>
