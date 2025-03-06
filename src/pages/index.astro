@@ -297,7 +297,7 @@ import axios from "axios";
 
 			try {
 				// Cargar conjuntos para el select
-				const response = await axios.get("http://127.0.0.1:8000/api/v1/fraternidades");
+				const response = await axios.get("https://carnaval.aulavirtualunior.com/api/v1/fraternidades");
 				const conjuntos = response.data.filter((c: any) => c.grupo.toString() === grupoId);
 				
 				conjuntoSelect.innerHTML = `
@@ -337,7 +337,7 @@ import axios from "axios";
 		}
 
 		try {
-			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const response = await axios.get("https://carnaval.aulavirtualunior.com/api/v1/resultados");
 			const conjuntos = response.data; // Ahora 'conjuntos' es un array
 
 			// Limpiar la tabla antes de agregar nuevas filas
@@ -410,7 +410,7 @@ import axios from "axios";
 		statsContent.classList.add("hidden");
 
 		try {
-			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const response = await axios.get("https://carnaval.aulavirtualunior.com/api/v1/resultados");
 			const conjuntos = response.data;
 
 			const totalConjuntos = conjuntos.length;
@@ -465,7 +465,7 @@ import axios from "axios";
 		statsContent.classList.add("hidden");
 
 		try {
-			const response = await axios.get("http://127.0.0.1:8000/api/v1/resultados");
+			const response = await axios.get("https://carnaval.aulavirtualunior.com/api/v1/resultados");
 			const conjuntos = response.data;
 
 			// Buscar el conjunto correspondiente al conjuntoId
