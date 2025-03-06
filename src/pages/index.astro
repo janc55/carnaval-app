@@ -7,15 +7,29 @@ import Layout from "../layouts/Layout.astro";
 		class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500"
 	>
 		<!-- Hero Section -->
-		<section class="relative py-16 px-4 text-center text-white">
-			<div class="absolute inset-0 bg-black bg-opacity-30 z-0"></div>
-			<div class="relative z-10 max-w-5xl mx-auto">
-				<h1 class="text-4xl md:text-6xl font-bold mb-4">
-					Carnaval de Oruro 2025
-				</h1>
-				<p class="text-xl md:text-2xl mb-6">Estadísticas Oficiales</p>
+		<section class="relative h-[50vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+			<!-- Imagen de fondo -->
+			<div class="absolute inset-0 z-0">
+			  <img 
+				src="/fondo-carnaval.webp" 
+				alt="Carnaval de Oruro" 
+				class="w-full h-full object-cover"
+			  />
+			  <div class="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-red-900/70 mix-blend-multiply"></div>
 			</div>
-		</section>
+			
+			<!-- Contenido -->
+			<div class="relative z-10 text-center px-4">
+			  <img 
+				src="/logo-carnaval.png" 
+				alt="Carnaval de Oruro - Carnaval del Bicentenario" 
+				class="h-40 md:h-40 mx-auto mb-6"
+			  />
+			  <p class="text-xl md:text-2xl text-white font-medium max-w-2xl mx-auto">
+				Estadísticas Oficiales
+			  </p>
+			</div>
+		  </section>
 
 		<!-- Dashboard Section -->
 		<section class="py-8 px-4">
@@ -255,7 +269,7 @@ import Layout from "../layouts/Layout.astro";
 
 <script>
 	import type { any } from "astro:schema";
-import axios from "axios";
+	import axios from "axios";
 
 	// Referencias a elementos del DOM
 	const grupoSelect = document.getElementById("grupo-select") as HTMLSelectElement;
@@ -383,11 +397,30 @@ import axios from "axios";
 
 			// Agregar event listeners a los botones de detalles
 			document.querySelectorAll(".ver-detalles").forEach((button) => {
-				button.addEventListener("click", () => {
-					const conjuntoId = button.getAttribute("data-id");
-					// Aquí puedes llamar a la función para mostrar los detalles del conjunto
-				});
+			button.addEventListener("click", async () => {
+				const conjuntoId = button.getAttribute("data-id");
+
+				try {
+					const response = await axios.get("https://carnaval.aulavirtualunior.com/api/v1/resultados");
+					const conjuntos = response.data;
+					const conjunto = conjuntos.find((c: any) => c.fraternidad_id.toString() === conjuntoId);
+
+					if (conjunto) {
+						cargarDatosEnModal(conjunto);
+						// Verificar si conjuntoModal existe
+						if (conjuntoModal) {
+							conjuntoModal.classList.remove("hidden");
+						} else {
+							console.error("Elemento modal no encontrado.");
+						}
+					} else {
+						console.error("Conjunto no encontrado.");
+					}
+				} catch (error) {
+					console.error("Error al cargar datos:", error);
+				}
 			});
+		});
 		} catch (error) {
 			console.error("Error al cargar los conjuntos:", error);
 			conjuntosTableBody.innerHTML = `
@@ -399,6 +432,87 @@ import axios from "axios";
 			`;
 		}
 	}
+
+	function cargarDatosEnModal(conjunto:any) {
+		const modalTitle = document.getElementById("modal-title");
+		const modalContent = document.getElementById("modal-content");
+
+		if (modalTitle && modalContent) {
+			modalTitle.textContent = `Detalles del Conjunto: ${conjunto.nombre_fraternidad}`;
+			modalContent.innerHTML = `
+				<div class="space-y-8">
+					<div class="text-center">
+						<div class="text-6xl font-bold text-purple-600 mb-2">${conjunto.promedio_integrantes}</div>
+						<p class="text-gray-600">Integrantes promedio</p>
+					</div>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div class="bg-purple-50 p-4 rounded-xl">
+							<div class="text-2xl font-bold text-purple-700">${conjunto.promedio_bloques || 'N/A'}</div>
+							<p class="text-purple-600 text-sm">Bloques</p>
+						</div>
+						<div class="bg-pink-50 p-4 rounded-xl">
+							<div class="text-2xl font-bold text-pink-700">${conjunto.total_conteos}</div>
+							<p class="text-pink-600 text-sm">Conteos realizados</p>
+						</div>
+					</div>
+
+					${conjunto.bandas?.length > 0 ? `
+						<div>
+							<h4 class="text-lg font-bold text-gray-800 mb-4">Bandas</h4>
+							<div class="space-y-3">
+								${conjunto.bandas.map((banda:any, index:any) => `
+									<div class="flex items-center justify-between p-3 rounded-xl border-2 ${
+										index % 2 === 0 ? 'border-orange-400 bg-orange-50' : 'border-red-400 bg-red-50'
+									}">
+										<span class="font-medium text-gray-800">${banda.nombre_banda}</span>
+										<div class="flex items-center gap-2">
+											<span class="px-3 py-1 rounded-lg ${
+												index % 2 === 0 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
+											} font-semibold">
+												${banda.promedio_integrantes}
+											</span>
+										</div>
+									</div>
+								`).join('')}
+							</div>
+						</div>
+					` : ''}
+
+					<div class="bg-gray-50 p-4 rounded-xl text-sm text-gray-600">
+						<p class="font-semibold mb-2">Acerca de estos datos:</p>
+						<p>Los números mostrados son promedios basados en ${conjunto.total_conteos} conteos realizados en diferentes ubicaciones.</p>
+						<p class="mt-2">Estos datos tienen un margen de error estimado del 5-10% debido a la naturaleza dinámica del evento.</p>
+					</div>
+
+					${conjunto.conteos?.length > 0 ? `
+						<div>
+							<h4 class="text-lg font-bold text-gray-800 mb-2">Ubicaciones de conteo</h4>
+							<ul class="list-disc pl-5 text-gray-600">
+								${[...new Set(conjunto.conteos.map((c:any) => c.ubicacion))].filter(u => u).map(ubicacion => `
+									<li>${ubicacion}</li>
+								`).join('') || '<li>Ubicación no especificada</li>'}
+							</ul>
+						</div>
+					` : ''}
+				</div>
+			`;
+		}
+	}
+
+	// Cerrar el modal al hacer clic en el botón de cerrar
+	if (closeModal) { // Verificar si closeModal existe
+		closeModal.addEventListener("click", () => {
+			if (conjuntoModal) {
+				conjuntoModal.classList.add("hidden");
+			} else {
+				console.error("Elemento modal no encontrado.");
+			}
+		});
+	} else {
+		console.error("Elemento de cierre del modal no encontrado.");
+	}
+
 
 	async function cargarEstadisticasGenerales() {
 		if (!statsContainer || !loadingStats || !statsContent) {
@@ -496,7 +610,7 @@ import axios from "axios";
 							<p class="text-purple-600 text-sm">Bloques</p>
 						</div>
 						<div class="bg-pink-50 p-4 rounded-xl">
-							<div class="text-2xl font-bold text-pink-700">${conteos.length}</div>
+							<div class="text-2xl font-bold text-pink-700">${conjunto.total_conteos}</div>
 							<p class="text-pink-600 text-sm">Conteos realizados</p>
 						</div>
 					</div>
@@ -525,7 +639,7 @@ import axios from "axios";
 
 					<div class="bg-gray-50 p-4 rounded-xl text-sm text-gray-600">
 						<p class="font-semibold mb-2">Acerca de estos datos:</p>
-						<p>Los números mostrados son promedios basados en ${conteos.length} conteos realizados en diferentes ubicaciones.</p>
+						<p>Los números mostrados son promedios basados en ${conjunto.total_conteos} conteos realizados en diferentes ubicaciones.</p>
 						<p class="mt-2">Estos datos tienen un margen de error estimado del 5-10% debido a la naturaleza dinámica del evento.</p>
 					</div>
 
