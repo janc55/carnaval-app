@@ -6,30 +6,25 @@ import Layout from "../layouts/Layout.astro";
 	<main
 		class="min-h-screen bg-gradient-to-br from-purple-600 via-red-500 to-yellow-500"
 	>
-		<!-- Hero Section -->
-		<section class="relative h-[50vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-			<!-- Imagen de fondo -->
-			<div class="absolute inset-0 z-0">
-			  <img 
-				src="/fondo-carnaval.webp" 
-				alt="Carnaval de Oruro" 
-				class="w-full h-full object-cover"
-			  />
-			  <div class="absolute inset-0 bg-gradient-to-b from-purple-900/70 to-red-900/70 mix-blend-multiply"></div>
-			</div>
+		<!-- Hero Section (estilo navbar) -->
+		<section class="relative h-20 flex items-center justify-between px-4 md:px-8 overflow-hidden">
+			<!-- Gradiente de fondo -->
+			<!--<div class="absolute inset-0 z-0 bg-gradient-to-br from-purple-600/90 via-red-500/90 to-yellow-500/90"></div> -->
 			
 			<!-- Contenido -->
-			<div class="relative z-10 text-center px-4">
-			  <img 
+			<div class="relative z-10 flex items-center justify-between w-full">
+			<div class="flex items-center">
+				<img 
 				src="/logo-carnaval.png" 
 				alt="Carnaval de Oruro - Carnaval del Bicentenario" 
-				class="h-40 md:h-40 mx-auto mb-6"
-			  />
-			  <p class="text-xl md:text-2xl text-white font-medium max-w-2xl mx-auto">
-				Estadísticas Oficiales
-			  </p>
+				class="h-14 md:h-16"
+				/>
 			</div>
-		  </section>
+			<div class="text-white font-medium text-lg md:text-xl">
+				Estadísticas Oficiales
+			</div>
+			</div>
+		</section>
 
 		<!-- Dashboard Section -->
 		<section class="py-8 px-4">
@@ -212,12 +207,12 @@ import Layout from "../layouts/Layout.astro";
 						siguientes ubicaciones:
 					</p>
 					<ul>
-						<li>Av. 6 de Agosto</li>
-						<li>La Plaza</li>
-						<li>Av. Cívica</li>
+						<li> - Av. 6 de Agosto</li>
+						<li> - Plaza 10 de febrero</li>
+						<li> - Av. Cívica</li>
 					</ul>
 					<p>
-						Cada conjunto fue contado múltiples veces en diferentes
+						Cada conjunto fue contado varias veces en diferentes
 						puntos para obtener una estimación más precisa. Sin
 						embargo, es importante considerar que el número de
 						participantes puede variar a lo largo del recorrido.
